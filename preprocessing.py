@@ -167,34 +167,22 @@ def morphological_cleanup(binary_img: np.ndarray) -> np.ndarray:
 
 # FULL PIPELINE
 
-def preprocess(image_path: str) -> np.ndarray:
-    """
-    Full preprocessing pipeline.
-
-    Args:
-        image_path  : path to the input receipt image
-        
-    Returns:
-        Preprocessed image as numpy array (grayscale, clean, ready for OCR)
-    """
-    # -- Load
+def preprocess(image_path: str, save_debug: bool = False, debug_dir: str = "debug") -> np.ndarray:
     img = load_image(image_path)
     img = resize_image(img, max_width=1200)
-
-    # -- Denoise (also converts to grayscale)
     gray = denoise(img)
-
-    # -- Deskew
     deskewed = deskew(gray)
-
-    # -- Contrast enhancement
     enhanced = enhance_contrast(deskewed)
-
-    # -- Binarize
     binary = binarize(enhanced)
-
-    # -- Morphological cleanup
     final = morphological_cleanup(binary)
+
+    # Quality check — if preprocessing made it worse, return original
+    # Compare average confidence proxy: if final has very few non-white pixels
+    # it means binarization destroyed the image
+    white_ratio = np.sum(final == 255) / final.size
+    if white_ratio > 0.97 or white_ratio < 0.5:
+        print("[PREPROCESS] Quality check failed — using grayscale fallback")
+        return cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
     return final
 
