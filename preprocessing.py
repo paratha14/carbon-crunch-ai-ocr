@@ -167,15 +167,13 @@ def morphological_cleanup(binary_img: np.ndarray) -> np.ndarray:
 
 # FULL PIPELINE
 
-def preprocess(image_path: str, save_debug: bool = False, debug_dir: str = "debug") -> np.ndarray:
+def preprocess(image_path: str) -> np.ndarray:
     """
     Full preprocessing pipeline.
 
     Args:
         image_path  : path to the input receipt image
-        save_debug  : if True, saves intermediate images for inspection
-        debug_dir   : folder to save debug images
-
+        
     Returns:
         Preprocessed image as numpy array (grayscale, clean, ready for OCR)
     """
@@ -208,3 +206,27 @@ def preprocess_to_pil(image_path: str) -> Image.Image:
     """
     processed = preprocess(image_path)
     return Image.fromarray(processed)
+
+'''
+if __name__ == "__main__":
+    import sys
+
+    if len(sys.argv) < 2:
+        print("Usage: python preprocessing.py <path_to_receipt_image>")
+        print("Example: python preprocessing.py")
+        sys.exit(1)
+
+    path = sys.argv[1]
+    print(f"Processing: {path}")
+
+    result = preprocess(path, save_debug=True, debug_dir="debug")
+
+    print(f"Output shape: {result.shape}")
+    print(f"Output dtype: {result.dtype}")
+   
+
+    # Show result
+    cv2.imshow("Preprocessed Receipt", result)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+'''
